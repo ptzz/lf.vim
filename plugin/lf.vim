@@ -45,7 +45,6 @@ if !exists('s:choice_file_path')
 endif
 
 function! OpenLfIn(path, edit_cmd)
-  let oldguioptions = &guioptions
   let oldlaststatus = &laststatus
   try
     if has('nvim')
@@ -69,22 +68,46 @@ function! OpenLfIn(path, edit_cmd)
         call termopen(s:lf_command . ' -selection-path=' . s:choice_file_path . ' "' . currentPath . '"', lfCallback)
       else
         call termopen(s:lf_command . ' -selection-path=' . s:choice_file_path . ' --selectfile="' . currentPath . '"', lfCallback)
-      endif
+    endif
       startinsert
     else
-      set guioptions+=! " Make it work with MacVim
       let currentPath = expand(a:path)
-      if isdirectory(currentPath)
-        silent exec '!' . s:lf_command . ' -selection-path=' . s:choice_file_path . ' "' . currentPath . '"'
-      else
-        silent exec '!' . s:lf_command . ' -selection-path=' . s:choice_file_path . ' --selectfile="' . currentPath . '"'
-      endif
-      set filetype=lf
-      if filereadable(s:choice_file_path)
-        for f in readfile(s:choice_file_path)
-          exec a:edit_cmd . f
-        endfor
-        call delete(s:choice_file_path)
+      let pbuf = bufnr('')
+      let lfCallback = {'edit_cmd': a:edit_cmd, 'buf': bufnr(''), 'pbuf': pbuf, 
+            \ 'lines': &lines,
+            \ 'columns': &columns}
+      func! lfCallback.on_exit(id, code, ...)
+        call self.switch_back(1)
+        if bufexists(self.buf)
+            execute 'bd!' self.buf
+        endif
+        try
+          if filereadable(s:choice_file_path)
+            for f in readfile(s:choice_file_path)
+              exec self.edit_cmd . f
+            endfor
+            call delete(s:choice_file_path)
+          endif
+        endtry
+      endfunc
+
+      function! lfCallback.switch_back(inplace)
+        if a:inplace && bufnr('') == self.buf
+          if bufexists(self.pbuf)
+            execute 'keepalt b' self.pbuf
+          endif
+          " No other listed buffer
+          if bufnr('') == self.buf
+            enew
+          endif
+        endif
+      endfunction
+
+      " if isdirectory(currentPath)
+      let cmd = s:lf_command . ' -selection-path=' . s:choice_file_path . ' "' . currentPath . '"'
+      call term_start([&shell, &shellcmdflag, cmd], {'curwin': 1, 'exit_cb': function(lfCallback.on_exit)})
+      if !has('patch-8.0.1261') && !has('nvim') && !s:is_win
+          call term_wait(fzf.buf, 20)
       endif
       redraw!
       " reset the filetype to fix the issue that happens
@@ -92,7 +115,6 @@ function! OpenLfIn(path, edit_cmd)
       filetype detect
     endif
   finally
-    let &guioptions=oldguioptions
     let &laststatus=oldlaststatus
   endtry
 endfun
