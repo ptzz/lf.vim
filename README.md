@@ -67,7 +67,7 @@ By default lf is opened with the command `lf` but you can set an other custom co
 
 For instance if you want to display the hidden files by default you can write:
 ```
-let g:lf_command_override = 'lf --cmd "set show_hidden=true"'
+let g:lf_command_override = 'lf -command "set hidden"'
 ```
 
 ## Common issues
