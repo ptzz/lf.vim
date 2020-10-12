@@ -62,7 +62,7 @@ function! OpenLfIn(path, edit_cmd)
       startinsert
     else
       set guioptions+=! " Make it work with MacVim
-      let currentPath = expand(a:path)
+      let currentPath = expand(a:path) != "" ? expand(a:path) : getcwd()
       silent exec '!' . s:lf_command . ' -selection-path=' . s:choice_file_path . ' "' . currentPath . '"'
       if filereadable(s:choice_file_path)
         for f in readfile(s:choice_file_path)
