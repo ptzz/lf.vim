@@ -113,7 +113,7 @@ function! OpenLfOnVimLoadDir(argv_path)
   Bclose!
 
   " Open Lf
-  call OpenLfIn(path, 'edit')
+  call OpenLfIn(path, s:default_edit_cmd)
 endfunction
 
 " To open lf when vim load a directory
