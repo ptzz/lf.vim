@@ -16,6 +16,8 @@ Then, you need to add vim-floaterm for the floating/popup window dependency:
 
         Plug 'voldikss/vim-floaterm'
 
+**Note:** lf.vim should be loaded before vim-floaterm to override vim-floaterm's lf wrapper.
+
 If you use neovim, you have to add the dependency to the plugin bclose.vim:
 
         Plug 'rbgrouleff/bclose.vim'
