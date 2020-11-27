@@ -3,6 +3,8 @@ lf.vim
 
 [lf](https://github.com/gokcehan/lf) integration in vim and neovim
 
+![lf.vim](https://user-images.githubusercontent.com/56180050/100401445-70299b00-3094-11eb-945a-7caa04de696d.png)
+
 Installation
 ------------
 
@@ -38,19 +40,19 @@ Vim will open the selected file in the current window.
 `:LfWorkingDirectoryNewTab` will open the selected file in a new tab instead.
 
 List of commands:
-```
-Lf // open current file by default
-LfCurrentFile // Default Lf behaviour
+```vim
+Lf " Open current file by default
+LfCurrentFile " Default Lf behaviour
 LfCurrentDirectory
 LfWorkingDirectory
 
-// open always in new tabs
+" Always open in new tabs
 LfNewTab
 LfCurrentFileNewTab
 LfCurrentDirectoryNewTab
 LfWorkingDirectoryNewTab
 
-// open tab, when existant or in new tab when not existant
+" Open tab if it exists or in new tab if it does not
 LfCurrentFileExistingOrNewTab
 LfCurrentDirectoryExistingOrNewTab
 LfWorkingDirectoryExistingOrNewTab
@@ -62,9 +64,9 @@ supported but deprecated.
 
 ### Opening lf instead of netrw when you open a directory
 If you want to see vim opening lf when you open a directory (ex: nvim ./dir or :edit ./dir), please add this in your .(n)vimrc.
-```
-let g:NERDTreeHijackNetrw = 0 // add this line if you use NERDTree
-let g:lf_replace_netrw = 1 // open lf when vim open a directory
+```vim
+let g:NERDTreeHijackNetrw = 0 " Add this line if you use NERDTree
+let g:lf_replace_netrw = 1 " Open lf when vim opens a directory
 ```
 
 In order for this to work you need to install the bclose.vim plugin (see above).
@@ -73,6 +75,6 @@ In order for this to work you need to install the bclose.vim plugin (see above).
 By default lf is opened with the command `lf` but you can set an other custom command by setting the `g:lf_command_override` variable in your .(n)vimrc.
 
 For instance if you want to display the hidden files by default you can write:
-```
+```vim
 let g:lf_command_override = 'lf -command "set hidden"'
 ```
