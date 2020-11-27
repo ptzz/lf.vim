@@ -10,6 +10,10 @@ Install it with your favorite plugin manager. Example with vim-plug:
 
         Plug 'ptzz/lf.vim'
 
+Then, you need to add vim-floaterm for the floating/popup window dependency:
+
+        Plug 'voldikss/vim-floaterm'
+
 If you use neovim, you have to add the dependency to the plugin bclose.vim:
 
         Plug 'rbgrouleff/bclose.vim'
@@ -72,9 +76,3 @@ For instance if you want to display the hidden files by default you can write:
 ```
 let g:lf_command_override = 'lf -command "set hidden"'
 ```
-
-## Common issues
-
-### Using fish shell (issue #42)
-Solution: if you use something else than bash or zsh you should probably need to add this line in your .vimrc:
-`set shell=bash`

@@ -23,8 +23,6 @@
 
 
 " ================ Lf =======================
-let s:choice_file_path = tempname()
-
 if exists('g:lf_command_override')
   let s:lf_command = g:lf_command_override
 else
@@ -32,58 +30,52 @@ else
 endif
 
 function! OpenLfIn(path, edit_cmd)
-  let oldguioptions = &guioptions
-  let s:oldlaststatus = &laststatus
-  try
-    if has('nvim')
-      set laststatus=0
-      let currentPath = expand(a:path)
-      let lfCallback = { 'name': 'lf', 'edit_cmd': a:edit_cmd }
-      function! lfCallback.on_exit(job_id, code, event)
-        if a:code == 0
-          if exists(":Bclose")
+  let currentPath = expand(a:path)
+  let s:edit_cmd = a:edit_cmd
+  if exists(":FloatermNew")
+    exec 'FloatermNew ' . s:lf_command . ' ' . currentPath
+  else
+    echoerr "Failed to open a floating terminal. Make sure `voldikss/vim-floaterm` is installed."
+  endif
+endfun
+
+function! LfCallback(lf_tmpfile, ...) abort
+  if filereadable(a:lf_tmpfile)
+    let filenames = readfile(a:lf_tmpfile)
+
+    if !empty(filenames)
+      if has('nvim')
+        call floaterm#window#hide_floaterm(bufnr('%'))
+      endif
+
+      if get(s:, 'edit_cmd', 'default') != 'default'
+        if s:edit_cmd == 'edit'
+          if exists(':Bclose')
             silent! Bclose!
           else
-            echoerr "Failed to close buffer, make sure the `rbgrouleff/bclose.vim` plugin is installed"
+            echoerr "Failed to close buffer. make sure `rbgrouleff/bclose.vim` plugin is installed!"
           endif
         endif
-        try
-          if filereadable(s:choice_file_path)
-            for f in readfile(s:choice_file_path)
-              exec self.edit_cmd . f
-            endfor
-            call delete(s:choice_file_path)
-          endif
-        endtry
-        let &laststatus=s:oldlaststatus
-      endfunction
-      enew
-      call termopen(s:lf_command . ' -selection-path=' . s:choice_file_path . ' "' . currentPath . '"', lfCallback)
-      startinsert
-    else
-      set guioptions+=! " Make it work with MacVim
-      let currentPath = expand(a:path) != "" ? expand(a:path) : getcwd()
-      silent exec '!' . s:lf_command . ' -selection-path=' . s:choice_file_path . ' "' . currentPath . '"'
-      if filereadable(s:choice_file_path)
-        for f in readfile(s:choice_file_path)
-          exec a:edit_cmd . f
+
+        for filename in filenames
+          execute s:edit_cmd . ' ' . fnameescape(filename)
         endfor
-        call delete(s:choice_file_path)
+
+        unlet s:edit_cmd
+      else
+        for filename in filenames
+          execute g:floaterm_open_command . ' ' . fnameescape(filename)
+        endfor
       endif
-      redraw!
-      " reset the filetype to fix the issue that happens
-      " when opening lf on VimEnter (with `vim .`)
-      filetype detect
     endif
-  endtry
-  let &guioptions=oldguioptions
-endfun
+  endif
+endfunction
 
 " For backwards-compatibility (deprecated)
 if exists('g:lf_open_new_tab') && g:lf_open_new_tab
-  let s:default_edit_cmd='tabedit '
+  let s:default_edit_cmd='tabedit'
 else
-  let s:default_edit_cmd='edit '
+  let s:default_edit_cmd='edit'
 endif
 
 command! LfCurrentFile call OpenLfIn("%", s:default_edit_cmd)
@@ -92,12 +84,12 @@ command! LfWorkingDirectory call OpenLfIn(".", s:default_edit_cmd)
 command! Lf LfCurrentFile
 
 " To open the selected file in a new tab
-command! LfCurrentFileNewTab call OpenLfIn("%", 'tabedit ')
-command! LfCurrentFileExistingOrNewTab call OpenLfIn("%", 'tab drop ')
-command! LfCurrentDirectoryNewTab call OpenLfIn("%:p:h", 'tabedit ')
-command! LfCurrentDirectoryExistingOrNewTab call OpenLfIn("%:p:h", 'tab drop ')
-command! LfWorkingDirectoryNewTab call OpenLfIn(".", 'tabedit ')
-command! LfWorkingDirectoryExistingOrNewTab call OpenLfIn(".", 'tab drop ')
+command! LfCurrentFileNewTab call OpenLfIn("%", 'tabedit')
+command! LfCurrentFileExistingOrNewTab call OpenLfIn("%", 'tab drop')
+command! LfCurrentDirectoryNewTab call OpenLfIn("%:p:h", 'tabedit')
+command! LfCurrentDirectoryExistingOrNewTab call OpenLfIn("%:p:h", 'tab drop')
+command! LfWorkingDirectoryNewTab call OpenLfIn(".", 'tabedit')
+command! LfWorkingDirectoryExistingOrNewTab call OpenLfIn(".", 'tab drop')
 command! LfNewTab LfCurrentDirectoryNewTab
 
 " For retro-compatibility
@@ -110,7 +102,11 @@ function! OpenLfOnVimLoadDir(argv_path)
   let path = expand(a:argv_path)
 
   " Delete empty buffer created by vim
-  Bclose!
+  if exists(":Bclose")
+    silent! Bclose!
+  else
+    echoerr "Failed to close buffer. Make sure `rbgrouleff/bclose.vim` plugin is installed."
+  endif
 
   " Open Lf
   call OpenLfIn(path, s:default_edit_cmd)
@@ -127,4 +123,3 @@ endif
 if !exists('g:lf_map_keys') || g:lf_map_keys
   map <leader>f :Lf<CR>
 endif
-
