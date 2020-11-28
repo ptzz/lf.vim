@@ -12,15 +12,11 @@ Install it with your favorite plugin manager. Example with vim-plug:
 
         Plug 'ptzz/lf.vim'
 
-Then, you need to add vim-floaterm for the floating/popup window dependency:
+Then, add the vim-floaterm dependency:
 
         Plug 'voldikss/vim-floaterm'
 
 **Note:** lf.vim should be loaded before vim-floaterm to override vim-floaterm's lf wrapper.
-
-If you use neovim, you have to add the dependency to the plugin bclose.vim:
-
-        Plug 'rbgrouleff/bclose.vim'
 
 How to use it
 -------------
@@ -41,8 +37,14 @@ For opening lf in the current workspace, run `:LfWorkingDirectory`.
 Vim will open the selected file in the current window.
 `:LfWorkingDirectoryNewTab` will open the selected file in a new tab instead.
 
+For changing the current directory via lf, run `:Lfcd`or run `:Lflcd` for the current window.
+
 List of commands:
 ```vim
+" Change directory with lf via cd or lcd
+Lfcd
+Lflcd
+
 Lf " Open current file by default
 LfCurrentFile " Default Lf behaviour
 LfCurrentDirectory
@@ -70,8 +72,6 @@ If you want to see vim opening lf when you open a directory (ex: nvim ./dir or :
 let g:NERDTreeHijackNetrw = 0 " Add this line if you use NERDTree
 let g:lf_replace_netrw = 1 " Open lf when vim opens a directory
 ```
-
-In order for this to work you need to install the bclose.vim plugin (see above).
 
 ### Setting a custom lf command
 By default lf is opened with the command `lf` but you can set an other custom command by setting the `g:lf_command_override` variable in your .(n)vimrc.

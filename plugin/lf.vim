@@ -39,32 +39,28 @@ function! OpenLfIn(path, edit_cmd)
   endif
 endfun
 
-function! LfCallback(lf_tmpfile, ...) abort
-  if filereadable(a:lf_tmpfile)
+function! LfCallback(lf_tmpfile, lastdir_tmpfile, ...) abort
+  let edit_cmd = get(s:, 'edit_cmd', 'default')
+  if (edit_cmd == 'cd' || edit_cmd == 'lcd') && filereadable(a:lastdir_tmpfile)
+    let lastdir = readfile(a:lastdir_tmpfile, '', 1)[0]
+    if lastdir != getcwd()
+      exec edit_cmd . ' ' . lastdir
+      return
+    endif
+  elseif filereadable(a:lf_tmpfile)
     let filenames = readfile(a:lf_tmpfile)
-
     if !empty(filenames)
       if has('nvim')
         call floaterm#window#hide_floaterm(bufnr('%'))
       endif
-
-      if get(s:, 'edit_cmd', 'default') != 'default'
-        if s:edit_cmd == 'edit'
-          if exists(':Bclose')
-            silent! Bclose!
-          else
-            echoerr "Failed to close buffer. make sure `rbgrouleff/bclose.vim` plugin is installed!"
-          endif
-        endif
-
+      if edit_cmd != 'default'
         for filename in filenames
-          execute s:edit_cmd . ' ' . fnameescape(filename)
+          exec edit_cmd . ' ' . fnameescape(filename)
         endfor
-
         unlet s:edit_cmd
       else
         for filename in filenames
-          execute g:floaterm_open_command . ' ' . fnameescape(filename)
+          exec g:floaterm_open_command . ' ' . fnameescape(filename)
         endfor
       endif
     endif
@@ -78,6 +74,8 @@ else
   let s:default_edit_cmd='edit'
 endif
 
+command! Lfcd call OpenLfIn(".", 'cd')
+command! Lflcd call OpenLfIn(".", 'lcd')
 command! LfCurrentFile call OpenLfIn("%", s:default_edit_cmd)
 command! LfCurrentDirectory call OpenLfIn("%:p:h", s:default_edit_cmd)
 command! LfWorkingDirectory call OpenLfIn(".", s:default_edit_cmd)
@@ -97,26 +95,11 @@ function! OpenLf()
   Lf
 endfunction
 
-" Open Lf in the directory passed by argument
-function! OpenLfOnVimLoadDir(argv_path)
-  let path = expand(a:argv_path)
-
-  " Delete empty buffer created by vim
-  if exists(":Bclose")
-    silent! Bclose!
-  else
-    echoerr "Failed to close buffer. Make sure `rbgrouleff/bclose.vim` plugin is installed."
-  endif
-
-  " Open Lf
-  call OpenLfIn(path, s:default_edit_cmd)
-endfunction
-
 " To open lf when vim load a directory
 if exists('g:lf_replace_netrw') && g:lf_replace_netrw
   augroup ReplaceNetrwByLfVim
     autocmd VimEnter * silent! autocmd! FileExplorer
-    autocmd BufEnter * if isdirectory(expand("%")) | call OpenLfOnVimLoadDir("%") | endif
+    autocmd BufEnter * let s:buf_path = expand("%") | if isdirectory(s:buf_path) | bdelete! | call OpenLfIn(s:buf_path, s:default_edit_cmd) | endif
   augroup END
 endif
 
