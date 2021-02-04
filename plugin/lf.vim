@@ -34,9 +34,12 @@ endif
 function! OpenLfIn(path, edit_cmd)
   let oldguioptions = &guioptions
   let s:oldlaststatus = &laststatus
+  let s:oldshowmode = &showmode
+  let s:oldrelativenumber = &relativenumber
   try
     if has('nvim')
       set laststatus=0
+      set noshowmode norelativenumber
       let currentPath = expand(a:path)
       let lfCallback = { 'name': 'lf', 'edit_cmd': a:edit_cmd }
       function! lfCallback.on_exit(job_id, code, event)
@@ -56,6 +59,8 @@ function! OpenLfIn(path, edit_cmd)
           endif
         endtry
         let &laststatus=s:oldlaststatus
+        let &showmode=s:oldshowmode
+        let &relativenumber=s:oldrelativenumber
       endfunction
       enew
       call termopen(s:lf_command . ' -selection-path=' . s:choice_file_path . ' "' . currentPath . '"', lfCallback)
