@@ -44,11 +44,7 @@ function! OpenLfIn(path, edit_cmd)
       let lfCallback = { 'name': 'lf', 'edit_cmd': a:edit_cmd }
       function! lfCallback.on_exit(job_id, code, event)
         if a:code == 0
-          if exists(":Bclose")
-            silent! Bclose!
-          else
-            echoerr "Failed to close buffer, make sure the `rbgrouleff/bclose.vim` plugin is installed"
-          endif
+          silent! bdelete!
         endif
         try
           if filereadable(s:choice_file_path)
@@ -115,7 +111,7 @@ function! OpenLfOnVimLoadDir(argv_path)
   let path = expand(a:argv_path)
 
   " Delete empty buffer created by vim
-  Bclose!
+  bdelete!
 
   " Open Lf
   call OpenLfIn(path, s:default_edit_cmd)

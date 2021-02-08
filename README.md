@@ -10,9 +10,7 @@ Install it with your favorite plugin manager. Example with vim-plug:
 
         Plug 'ptzz/lf.vim'
 
-If you use neovim, you have to add the dependency to the plugin bclose.vim:
-
-        Plug 'rbgrouleff/bclose.vim'
+If you use neovim, make sure you have the [Neovim HEAD/nightly](https://github.com/neovim/neovim/releases/tag/nightly).
 
 How to use it
 -------------
