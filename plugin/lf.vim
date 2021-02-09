@@ -109,7 +109,7 @@ function! OpenLfOnVimLoadDir(argv_path)
   let path = expand(a:argv_path)
 
   " Delete empty buffer created by vim
-  silent exe "buffer #|bdelete! #"
+  silent exe ":buffer #|bdelete! #"
 
   " Open Lf
   call OpenLfIn(path, s:default_edit_cmd)
