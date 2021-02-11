@@ -13,6 +13,5 @@ function! floaterm#wrapper#lf#(cmd) abort
   endif
 
   exe "lcd " . original_dir
-  let cmd = [&shell, &shellcmdflag, cmd]
   return [cmd, {'on_exit': funcref('LfCallback', [lf_tmpfile, lastdir_tmpfile])}, v:false]
 endfunction
