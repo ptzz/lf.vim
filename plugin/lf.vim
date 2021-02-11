@@ -60,6 +60,7 @@ function! LfCallback(lf_tmpfile, lastdir_tmpfile, ...) abort
 
           call add(locations, dict)
         endfor
+        call floaterm#util#open(s:edit_cmd, locations)
         unlet s:edit_cmd
       else
         for filename in filenames
@@ -67,8 +68,8 @@ function! LfCallback(lf_tmpfile, lastdir_tmpfile, ...) abort
 
           call add(locations, dict)
         endfor
+        call floaterm#util#open(g:floaterm_open_command, locations)
       endif
-      call floaterm#util#open(g:floaterm_open_command, locations)
     endif
   endif
 endfunction
