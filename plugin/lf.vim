@@ -51,18 +51,24 @@ function! LfCallback(lf_tmpfile, lastdir_tmpfile, ...) abort
     let filenames = readfile(a:lf_tmpfile)
     if !empty(filenames)
       if has('nvim')
-        call floaterm#window#hide_floaterm(bufnr('%'))
+        call floaterm#window#hide(bufnr('%'))
       endif
+      let locations = []
       if edit_cmd != 'default'
         for filename in filenames
-          exec edit_cmd . ' ' . fnameescape(filename)
+          let dict = {'filename': fnamemodify(filename, ':p')}
+
+          call add(locations, dict)
         endfor
         unlet s:edit_cmd
       else
         for filename in filenames
-          exec g:floaterm_open_command . ' ' . fnameescape(filename)
+          let dict = {'filename': fnamemodify(filename, ':p')}
+
+          call add(locations, dict)
         endfor
       endif
+      call floaterm#util#open(g:floaterm_open_command, locations)
     endif
   endif
 endfunction
