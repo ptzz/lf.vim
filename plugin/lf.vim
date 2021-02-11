@@ -33,7 +33,7 @@ function! OpenLfIn(path, edit_cmd)
   let currentPath = expand(a:path)
   let s:edit_cmd = a:edit_cmd
   if exists(":FloatermNew")
-    exec 'FloatermNew ' . s:lf_command . ' ' . currentPath
+    exec 'FloatermNew ' . '--height=' . string(get(g:, 'lf_height', g:floaterm_height)) . ' --width=' . string(get(g:, 'lf_width', g:floaterm_width)) . ' ' . s:lf_command . ' ' . currentPath
   else
     echoerr "Failed to open a floating terminal. Make sure `voldikss/vim-floaterm` is installed."
   endif

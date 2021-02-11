@@ -25,6 +25,8 @@ The default shortcut for opening lf is `<leader>f` (\f by default).
 To disable the default key mapping, add this line in your .vimrc or init.vim: `let g:lf_map_keys = 0`.
 Then you can add a new mapping with this line: `map <leader>f :Lf<CR>`.
 
+To set the floating window width and height, set `g:lf_width` and `g:lf_height` accordingly. If not found, it will default to `g:floaterm_width` and `g:floaterm_height`.
+
 The command for opening lf in the current file's directory is `:Lf`.
 When opening (default 'l' and '\<right\>') a file from the lf window,
 vim will open the selected file in the current window. To open the selected
