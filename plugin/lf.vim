@@ -60,15 +60,18 @@ function! LfCallback(lf_tmpfile, lastdir_tmpfile, ...) abort
 
           call add(locations, dict)
         endfor
-        call floaterm#util#open(s:edit_cmd, locations)
+        let s:old_opener = g:floaterm_opener
+        let g:floaterm_opener = s:edit_cmd
+        call floaterm#util#open(locations)
         unlet s:edit_cmd
+        let g:floaterm_opener = s:old_opener
       else
         for filename in filenames
           let dict = {'filename': fnamemodify(filename, ':p')}
 
           call add(locations, dict)
         endfor
-        call floaterm#util#open(g:floaterm_open_command, locations)
+        call floaterm#util#open(locations)
       endif
     endif
   endif
@@ -76,7 +79,7 @@ endfunction
 
 " For backwards-compatibility (deprecated)
 if exists('g:lf_open_new_tab') && g:lf_open_new_tab
-  let s:default_edit_cmd='tabedit'
+  let s:default_edit_cmd='tabe'
 else
   let s:default_edit_cmd='edit'
 endif
@@ -89,12 +92,12 @@ command! LfWorkingDirectory call OpenLfIn(".", s:default_edit_cmd)
 command! Lf LfCurrentFile
 
 " To open the selected file in a new tab
-command! LfCurrentFileNewTab call OpenLfIn("%", 'tabedit')
-command! LfCurrentFileExistingOrNewTab call OpenLfIn("%", 'tab drop')
-command! LfCurrentDirectoryNewTab call OpenLfIn("%:p:h", 'tabedit')
-command! LfCurrentDirectoryExistingOrNewTab call OpenLfIn("%:p:h", 'tab drop')
-command! LfWorkingDirectoryNewTab call OpenLfIn(".", 'tabedit')
-command! LfWorkingDirectoryExistingOrNewTab call OpenLfIn(".", 'tab drop')
+command! LfCurrentFileNewTab call OpenLfIn("%", 'tabe')
+command! LfCurrentFileExistingOrNewTab call OpenLfIn("%", 'drop')
+command! LfCurrentDirectoryNewTab call OpenLfIn("%:p:h", 'tabe')
+command! LfCurrentDirectoryExistingOrNewTab call OpenLfIn("%:p:h", 'drop')
+command! LfWorkingDirectoryNewTab call OpenLfIn(".", 'tabe')
+command! LfWorkingDirectoryExistingOrNewTab call OpenLfIn(".", 'drop')
 command! LfNewTab LfCurrentDirectoryNewTab
 
 " For retro-compatibility
